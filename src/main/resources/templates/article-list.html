@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko" th:replace="~{default-board::layout(~{::section})}"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<body>
+<section class="max-w-6xl mx-auto px-4 py-8">
+    <!-- 게시판 헤더 -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-medium text-gray-900 mb-2">게시판</h1>
+        <p class="text-gray-600">자유롭게 소통하고 정보를 공유해보세요.</p>
+    </div>
+
+    <!-- 게시글 테이블 -->
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+        <table class="w-full">
+            <thead class="bg-gray-50 border-b border-gray-200">
+            <tr>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-20">
+                    번호
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    제목
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-32">
+                    작성자
+                </th>
+                <th class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-40">
+                    수정날짜
+                </th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-200">
+            <tr th:each="article : ${page.content}" class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${article.id}">id</td>
+                <td class="px-6 py-4">
+                    <a th:text="${article.title}"
+                       th:href="@{/article/content(id=${article.id})}"
+                       class="text-gray-900 hover:text-blue-600 transition-colors font-medium">title</a>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" th:text="${article.name}">author</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                    th:text="${#calendars.format(article.updated, 'yyyy-MM-dd HH:mm:ss')}">2025-08-13 11:52:56</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 페이지네이션 및 글쓰기 버튼 -->
+    <div th:if="${!page.isEmpty()}">
+        <!-- 상단: 게시글 개수와 글쓰기 버튼 -->
+        <div class="flex items-center justify-between mt-8">
+            <div class="text-sm text-gray-500">
+                총 <span class="font-medium" th:text="${page.totalElements}">0</span>개의 게시글
+            </div>
+
+            <!-- 글쓰기 버튼 -->
+            <div sec:authorize="isAuthenticated()">
+                <a th:href="@{/article/add}"
+                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors shadow-sm">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    글쓰기
+                </a>
+            </div>
+        </div>
+
+        <!-- 중앙: 페이지네이션 -->
+        <nav class="flex items-center justify-center space-x-1 mt-6"
+             th:with="start=${T(java.lang.Math).floor(page.number / 5) * 5},
+                         last=(${start + 4 < page.totalPages ? start + 4 : page.totalPages - 1})">
+
+            <!-- 이전 페이지 버튼 -->
+            <a th:href="@{/article/list(page=${page.number - 1})}"
+               class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+               th:classappend="${page.first} ? 'opacity-50 cursor-not-allowed pointer-events-none'"
+               aria-label="Previous">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </a>
+
+            <!-- 페이지 번호들 -->
+            <a th:each="pageNumber: ${#numbers.sequence(start, last)}"
+               th:text="${pageNumber + 1}"
+               th:href="@{/article/list(page=${pageNumber})}"
+               class="px-3 py-2 text-sm font-medium border rounded-md transition-colors"
+               th:classappend="${pageNumber == page.number} ? 'bg-blue-600 text-white border-blue-600' : 'text-gray-700 bg-white border-gray-300 hover:bg-gray-50'">1</a>
+
+            <!-- 다음 페이지 버튼 -->
+            <a th:href="@{/article/list(page=${page.number + 1})}"
+               class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+               th:classappend="${page.last} ? 'opacity-50 cursor-not-allowed pointer-events-none'"
+               aria-label="Next">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </nav>
+    </div>
+
+    <!-- 페이지가 비어있을 때의 글쓰기 버튼 -->
+    <div class="flex justify-end mt-8" th:if="${page.isEmpty()}">
+        <a th:href="@{/article/add}"
+           sec:authorize="isAuthenticated()"
+           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors shadow-sm">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            글쓰기
+        </a>
+    </div>
+
+    <!-- 빈 상태 메시지 -->
+    <div th:if="${page.isEmpty()}" class="text-center py-16">
+        <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">게시글이 없습니다</h3>
+        <p class="text-gray-500 mb-6">첫 번째 게시글을 작성해보세요!</p>
+        <a th:href="@{/article/add}"
+           sec:authorize="isAuthenticated()"
+           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            글쓰기
+        </a>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      th:replace="~{default-board::layout(~{::section})}">
+<body>
+<section class="max-w-4xl mx-auto px-4 py-8" id="notice" th:data-noticeId="${notice.getId()}">
+    <!-- 게시글 상세 정보 -->
+    <div class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+        <!-- 헤더 -->
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+            <h1 class="text-2xl font-medium text-gray-900 text-center">공지사항</h1>
+        </div>
+
+        <!-- 게시글 정보 테이블 -->
+        <div class="divide-y divide-gray-200">
+            <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="font-medium text-gray-500">공지사항 번호</div>
+                <div class="md:col-span-3 text-gray-900" th:text="${notice.id}">id</div>
+            </div>
+
+            <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="font-medium text-gray-500">제목</div>
+                <div class="md:col-span-3 text-gray-900 font-medium" th:text="${notice.title}">title</div>
+            </div>
+
+            <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="font-medium text-gray-500">내용</div>
+                <div class="md:col-span-3 text-gray-900 whitespace-pre-wrap leading-relaxed" th:text="${notice.description}">description</div>
+            </div>
+
+            <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="font-medium text-gray-500">글쓴이</div>
+                <div class="md:col-span-3 text-gray-900" th:text="${notice.name}">김동률</div>
+            </div>
+
+            <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="font-medium text-gray-500">작성일</div>
+                <div class="md:col-span-3 text-gray-900" th:text="${#calendars.format(notice.created, 'yyyy-MM-dd HH:mm:ss')}">
+                    2025-08-13 22:38:10
+                </div>
+            </div>
+
+            <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="font-medium text-gray-500">수정일</div>
+                <div class="md:col-span-3 text-gray-900" th:text="${#calendars.format(notice.updated, 'yyyy-MM-dd HH:mm:ss')}">
+                    2025-08-13 22:38:10
+                </div>
+            </div>
+
+            <!-- 첨부파일 영역 -->
+            <div th:if="${notice.fileUrl}" class="px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="font-medium text-gray-500">첨부파일</div>
+                <div class="md:col-span-3">
+                    <!-- 파일 정보 -->
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <div class="flex items-center space-x-3">
+                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <div>
+                                <div class="font-medium text-gray-900" th:text="${notice.fileTitle}">첨부파일</div>
+                                <div class="text-sm text-gray-500">
+                                    <span th:text="${notice.fileContentType}">타입</span> •
+                                    <span th:text="${#numbers.formatDecimal(notice.fileSize/1024.0/1024.0,1,2)}">0.00</span> MB
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 파일 액션 버튼 -->
+                    <div class="flex flex-wrap gap-3 mb-4"
+                    >
+                        <button  id="downloadBtn" th:data-noticeNum="${notice.getId()}"
+                                 class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            다운로드
+                        </button>
+                        <a th:href="${notice.fileUrl}"
+                           target="_blank"
+                           class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                            </svg>
+                            새 창에서 열기
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 액션 버튼들 -->
+    <div class="flex items-center justify-between mt-8">
+        <!-- 목록 버튼 -->
+        <a th:href="@{/notice/list}"
+           class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+            목록
+        </a>
+
+        <!-- 수정/삭제 버튼 (작성자만) -->
+        <div sec:authorize="hasRole('ADMIN')"
+             th:if="${#authentication.principal.memberId == notice.getMember_id()}"
+             class="flex space-x-3">
+            <a th:href="@{/notice/edit(id=${notice.id})}"
+               class="inline-flex items-center px-4 py-2 bg-amber-600 text-white rounded-md hover:bg-amber-700 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+                수정
+            </a>
+
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <button type="button"
+                    th:attr="data-href=@{/notice/delete(id=${notice.id})}"
+                    onclick="confirmDelete(this)"
+                    class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+                삭제
+            </button>
+
+            <script>
+                function confirmDelete(el) {
+                    const url = el.getAttribute("data-href");
+                    Swal.fire({
+                        title: "삭제하시겠습니까?",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#d33",
+                        cancelButtonColor: "#3085d6",
+                        confirmButtonText: "삭제",
+                        cancelButtonText: "취소"
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = url;
+                        }
+                    });
+                }
+            </script>
+        </div>
+    </div>
+    <script>
+        // 'downloadButton' id를 가진 버튼 요소를 찾습니다.
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        // 버튼에 클릭 이벤트 리스너를 추가합니다.
+        downloadBtn.addEventListener('click', async () => {
+            // 버튼의 data-download-url 속성에서 다운로드 URL을 가져옵니다.
+            const noticeNum = downloadBtn.getAttribute('data-noticeNum');
+
+            try {
+                // fetch API를 사용해 서버에 파일을 요청합니다.
+                const response = await fetch('/notice/download?id=' + noticeNum);
+
+                // --- 에러 처리 부분 ---
+                // 응답 상태가 'ok'(200-299)가 아닐 경우 (예: 400 Bad Request)
+                if (!response.ok) {
+                    // 서버가 보낸 에러 메시지(JSON 본문)를 읽어옵니다.
+                    const errorResponse = await response.json();
+                    // 팝업(alert)으로 에러 메시지를 띄웁니다.
+                    alert('다운로드 실패!\n' + (errorResponse.message || '알 수 없는 오류가 발생했습니다.'));
+                    return; // 함수 실행을 중단합니다.
+                }
+
+                // --- 성공 처리 부분 ---
+                const cd = response.headers.get('Content-Disposition');
+                let filename = 'download';
+                if (cd) {
+                    // filename* 우선, 없으면 filename
+                    const star = cd.match(/filename\*=(?:UTF-8''|)([^;]+)/i);
+                    const plain = cd.match(/filename="?([^;"\r\n]+)"?/i);
+                    const picked = (star && star[1]) || (plain && plain[1]);
+                    if (picked) filename = decodeURIComponent(picked.trim());
+                }
+
+                // 응답 본문을 Blob(파일 데이터) 객체로 변환합니다.
+                const blob = await response.blob();
+                // Blob 데이터를 가리키는 임시 URL을 생성합니다.
+                const url = window.URL.createObjectURL(blob);
+
+                // 보이지 않는 <a> 태그를 만들어 다운로드를 실행시킵니다.
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.setAttribute('href', url);
+                a.setAttribute('download', filename);
+                console.log(url + " " + filename);
+                document.body.appendChild(a);
+                a.click();
+
+                // 임시 URL과 태그를 정리합니다.
+                window.URL.revokeObjectURL(url);
+                a.remove();
+            } catch (error) {
+                console.error('다운로드 중 예외 발생:', error);
+                alert('다운로드 중 오류가 발생했습니다. 네트워크 연결을 확인해주세요.');
+            }
+        });
+    </script>
+</section>
+</body>
+</html>

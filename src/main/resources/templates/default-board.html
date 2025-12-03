@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6"
+      th:fragment="layout(content)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Urbanism</title>
+    <link rel="stylesheet" th:href="@{/css/tailwind.css}">
+</head>
+<body class="bg-background text-foreground min-h-screen flex flex-col">
+<!-- 네비게이션 바 -->
+<nav class="bg-white border-b border-gray-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between h-16">
+            <!-- 브랜드 -->
+            <div class="flex-shrink-0">
+                <a class="flex items-center gap-2 text-gray-900 text-decoration-none"
+                   th:href="@{/article/project}">
+                    <!-- 이미지 크기를 Navbar 높이(56px)와 맞춤 -->
+                    <img th:src="@{/image/cau.jpeg}" alt="중앙대 로고"
+                         class="rounded" style="width: 200px; height: 60px;">
+                </a>
+            </div>
+
+            <!-- 가운데 메뉴 (데스크톱) -->
+            <div class="hidden md:block">
+                <div class="flex items-center space-x-8">
+                    <a th:href="@{/intro}" class="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm transition-colors">소개</a>
+                    <a th:href="@{/article/project}" class="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm transition-colors">게시글</a>
+                    <a th:href="@{/notice/list}" class="text-gray-700 hover:text-gray-900 px-3 py-2 text-sm transition-colors">공지사항</a>
+                </div>
+            </div>
+
+            <!-- 오른쪽 인증 메뉴 (데스크톱) -->
+            <div class="hidden md:flex items-center space-x-4">
+                <!-- 비회원 -->
+                <div sec:authorize="isAnonymous()" class="flex items-center space-x-4">
+                    <a class="flex items-center justify-center gap-2 whitespace-nowrap rounded-md border border-input bg-background px-4 py-2 hover:bg-accent hover:text-accent-foreground h-9 text-sm transition-colors"
+                       th:href="@{/login}">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                        </svg>
+                        로그인
+                    </a>
+                    <a class="flex items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary text-primary-foreground hover:bg-primary/90 h-9 px-4 py-2 text-sm transition-colors"
+                       th:href="@{/signup}">
+                        회원가입
+                    </a>
+                </div>
+
+                <!-- 관리자 -->
+                <div class="relative" sec:authorize="hasAnyRole('ADMIN')">
+                    <a class="text-gray-700 hover:text-gray-900 border border-gray-300 rounded-md px-3 py-2 text-sm flex items-center gap-1 dropdown-toggle transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                       onclick="toggleDropdown('adminDropdown')">
+                        관리자 메뉴
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </a>
+                    <div id="adminDropdown" class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 hidden">
+                        <a class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors focus:outline-none focus:bg-gray-50 focus:ring-2 focus:ring-inset focus:ring-primary" th:href="@{/member/list}">회원관리</a>
+                    </div>
+                </div>
+
+                <!-- 로그인 사용자 -->
+                <div class="relative" sec:authorize="isAuthenticated()">
+                    <a class="text-gray-700 hover:text-gray-900 border border-gray-300 rounded-md px-3 py-2 text-sm flex items-center gap-1 dropdown-toggle transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+                       onclick="toggleDropdown('userDropdown')"
+                       sec:authentication="principal.displayName">홍길동
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </a>
+                    <div id="userDropdown" class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50 hidden">
+                        <a class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors" th:href="@{/password}">비밀번호 변경</a>
+                        <a class="block px-4 py-2 text-gray-700 hover:bg-gray-50 transition-colors"
+                           href="#"
+                           onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                            로그아웃
+                        </a>
+
+                        <form id="logout-form" th:action="@{/logout}" method="post" style="display: none;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 모바일 토글 버튼 -->
+            <button class="md:hidden p-2 text-gray-700 hover:text-gray-900 transition-colors"
+                    onclick="toggleMobileMenu()"
+                    aria-label="Toggle navigation">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- 모바일 메뉴 -->
+        <div id="mobileMenu" class="md:hidden border-t border-gray-200 mt-0 pt-4 pb-4 hidden">
+            <div class="space-y-4">
+                <!-- 네비게이션 메뉴 -->
+                <div class="space-y-2">
+                    <a th:href="@{/intro}" class="block text-gray-700 hover:text-gray-900 py-2 px-4 transition-colors">소개</a>
+                    <a th:href="@{/article/list}" class="block text-gray-700 hover:text-gray-900 py-2 px-4 transition-colors">게시글</a>
+                    <a th:href="@{/notice/list}" class="block text-gray-700 hover:text-gray-900 py-2 px-4 transition-colors">공지사항</a>
+                </div>
+
+                <!-- 인증 메뉴 -->
+                <div class="border-t border-gray-200 pt-4 space-y-2">
+                    <!-- 비회원 -->
+                    <div sec:authorize="isAnonymous()" class="space-y-2 px-4">
+                        <a th:href="@{/login}" class="block text-gray-700 hover:text-gray-900 py-2 transition-colors">로그인</a>
+                        <a th:href="@{/signup}" class="block bg-gray-900 text-white hover:bg-gray-800 px-4 py-2 rounded-md transition-colors text-center">회원가입</a>
+                    </div>
+
+                    <!-- 관리자 -->
+                    <div sec:authorize="hasAnyRole('ADMIN')" class="space-y-2 px-4">
+                        <div class="text-muted-foreground py-1 text-sm">관리자 메뉴</div>
+                        <a class="block text-foreground hover:text-accent-foreground hover:bg-accent py-2 pl-4 rounded-md transition-colors" th:href="@{/member/list}">회원관리</a>
+                    </div>
+
+                    <!-- 로그인 사용자 -->
+                    <div sec:authorize="isAuthenticated()" class="space-y-2 px-4">
+                        <div class="text-muted-foreground py-1 text-sm" sec:authentication="principal.displayName">홍길동</div>
+                        <a class="block text-foreground hover:text-accent-foreground hover:bg-accent py-2 pl-4 rounded-md transition-colors" th:href="@{/password}">비밀번호 변경</a>
+                        <a class="block text-foreground hover:text-accent-foreground hover:bg-accent py-2 pl-4 rounded-md transition-colors cursor-pointer"
+                           href="#"
+                           onclick="event.preventDefault(); document.getElementById('logout-form-mobile').submit();">
+                            로그아웃
+                        </a>
+
+                        <form id="logout-form-mobile" th:action="@{/logout}" method="post" style="display: none;">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<main class="mt-6 flex-1">
+    <div class="container mx-auto px-4" th:replace="${content}"></div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{footer::footer}"></div>
+
+<script>
+    function toggleDropdown(dropdownId) {
+        const dropdown = document.getElementById(dropdownId);
+        // 다른 모든 드롭다운 닫기
+        document.querySelectorAll('[id$="Dropdown"]').forEach(el => {
+            if (el.id !== dropdownId) {
+                el.classList.add('hidden');
+            }
+        });
+        // 현재 드롭다운 토글
+        dropdown.classList.toggle('hidden');
+    }
+
+    function toggleMobileMenu() {
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenu.classList.toggle('hidden');
+    }
+
+    // 외부 클릭 시 드롭다운 닫기
+    document.addEventListener('click', function(event) {
+        const dropdowns = document.querySelectorAll('[id$="Dropdown"]');
+        const toggles = document.querySelectorAll('.dropdown-toggle');
+
+        let clickedToggle = false;
+        toggles.forEach(toggle => {
+            if (toggle.contains(event.target)) {
+                clickedToggle = true;
+            }
+        });
+
+        if (!clickedToggle) {
+            dropdowns.forEach(dropdown => {
+                dropdown.classList.add('hidden');
+            });
+        }
+    });
+</script>
+</body>
+</html>
