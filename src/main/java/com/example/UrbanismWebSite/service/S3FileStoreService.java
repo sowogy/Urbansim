@@ -3,13 +3,20 @@ package com.example.UrbanismWebSite.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
+import com.example.UrbanismWebSite.dto.ArticleDTO;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -17,6 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -40,6 +48,7 @@ public class S3FileStoreService {
     // 파일당 최대 20MB
     private static final long MAX_SIZE = 20L * 1024 * 1024;
 
+    @Transactional(rollbackOn = {AmazonS3Exception.class})
     public List<S3StoredFile> storeAll(List<MultipartFile> files, String category) throws Exception {
         if (files == null || files.isEmpty()) return List.of();
 
@@ -102,7 +111,6 @@ public class S3FileStoreService {
         if (fileUrl == null || fileUrl.isBlank()) {
             throw new IllegalArgumentException("파일명이 유효하지 않습니다.");
         }
-
         // S3에서 객체 가져오기 (v1 방식)
         return amazonS3.getObject(new GetObjectRequest(bucket, fileUrl));
     }
@@ -110,6 +118,7 @@ public class S3FileStoreService {
     /**
      * S3에서 파일을 삭제
      */
+    @Transactional(rollbackOn = {AmazonS3Exception.class})
     public void deleteFile(String fileUrl) {
         if (fileUrl == null || fileUrl.isBlank()) return;
         try {
@@ -152,5 +161,45 @@ public class S3FileStoreService {
             System.err.println("잘못된 URL 주소입니다 \n" + e);
             return null;
         }
+    }
+
+    public ResponseEntity<StreamingResponseBody> fileDownload(ArticleDTO articleDTO){
+        // S3 에서 객체 로드
+        String path = findPath(articleDTO.getFileUrl());
+        S3Object s3Object = downloadFile(path);
+        S3ObjectInputStream s3is = s3Object.getObjectContent();
+        ObjectMetadata metadata = s3Object.getObjectMetadata();
+
+        // 헤더 구성
+        HttpHeaders headers = new HttpHeaders();
+
+        // Content-Type이 비어있는 경우
+        String contentType = metadata.getContentType();
+        if (contentType == null || contentType.isBlank()) {
+            contentType = "application/octet-stream";
+        }
+        headers.setContentType(MediaType.parseMediaType(contentType));
+
+        if (metadata.getContentLength() > 0) {
+            headers.setContentLength(metadata.getContentLength());
+        }
+
+        // 파일명: 원본명 사용 (확장자 포함)
+        String originalFileName = articleDTO.getFileTitle();
+
+        //첨부 다운로드 헤더
+        headers.setContentDisposition(
+                ContentDisposition.builder("attachment")
+                        .filename(originalFileName, StandardCharsets.UTF_8) // RFC5987
+                        .build()
+        );
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body((StreamingResponseBody) out -> {
+                    try (S3ObjectInputStream in = s3is; S3Object ignored = s3Object) {
+                        in.transferTo(out);
+                    }
+                });
     }
 }

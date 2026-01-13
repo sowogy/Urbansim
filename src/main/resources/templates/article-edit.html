@@ -6,8 +6,8 @@
 <section class="max-w-4xl mx-auto px-4 py-8">
     <!-- 페이지 헤더 -->
     <div class="mb-8">
-        <h1 class="text-3xl font-medium text-gray-900 mb-2">게시글 수정</h1>
-        <p class="text-gray-600">게시글 내용을 수정하세요.</p>
+        <h1 class="text-3xl font-medium text-gray-900 mb-2">프로젝트 수정</h1>
+        <p class="text-gray-600">프로젝트 내용을 수정하세요.</p>
     </div>
 
     <!-- 게시글 수정 폼 -->
@@ -17,8 +17,8 @@
             <h2 class="text-xl font-medium text-gray-900">글 수정</h2>
         </div>
 
-        <form th:object="${article}" th:action="@{/article/edit}" method="post" class="p-6 space-y-6">
-            <input type="hidden" name="id" th:value="*{id}"/>
+        <form id="sendForm" th:object="${article}" th:action="@{/article/edit}" method="post" class="p-6 space-y-6" enctype="multipart/form-data">
+            <input id="articleId" type="hidden" name="id" th:value="*{id}"/>
 
             <!-- 제목 입력 -->
             <div>
@@ -45,7 +45,7 @@
             <!-- 파일 업로드 영역 -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">첨부파일 <p class="mt-2 text-sm text-gray-500">
-                    (PPT, PDF, HWP, DOCX 파일만 가능)
+                    (PPT, PDF, HWP, DOCX, zip 파일만 가능)
                 </p></label>
 
                 <!-- 숨김 필드: 삭제 여부 -->
@@ -346,6 +346,40 @@
             </button>
         </form>
     </div>
+
+    <!-- 에러처리 스크립트-->
+    <script>
+        document.getElementById('sendForm').addEventListener('submit', async function(e){
+            showLoading();
+            e.preventDefault();
+
+            const form = this;
+            const formData = new FormData(form);
+            const id = document.getElementById('articleId').value;
+
+            try{
+                const response = await fetch(form.action, {
+                    method : 'POST',
+                    body : formData
+                });
+
+                if(response.ok){
+                    hideLoading();
+                    alert('프로젝트가 수정되었습니다.');
+                    window.location.href="/article/content?id="+id;
+                }
+                else if(!response.ok){
+                    const errorData = await response.json();
+                    hideLoading();
+                    alert(errorData.message || '사용자 요청 처리 중 에러가 발생했습니다.');
+                }
+            } catch(error){
+                console.log(error);
+                hideLoading();
+                alert('서버와 연결할 수 없습니다. 인터넷 연결을 확인해보세요.');
+            }
+        });
+    </script>
 </section>
 </body>
 </html>

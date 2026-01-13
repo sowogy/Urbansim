@@ -12,6 +12,7 @@ import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -20,6 +21,13 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.Temporal;
+import java.time.temporal.TemporalAdjuster;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -50,6 +58,7 @@ public class ArticleService {
                 .build();
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public ArticleDTO create(Long memberId, ArticleForm articleForm){
         Member member = memberRepository.findById(memberId).orElseThrow();
 
@@ -76,17 +85,58 @@ public class ArticleService {
                 article.setFileSize(f.size());                    // 파일 크기(byte)
 
             } catch (Exception e) {
-                throw new RuntimeException("파일 저장 중 오류가 발생했습니다.", e);
+                throw new RuntimeException("파일 저장 중 오류가 발생했습니다. " + e);
             }
         }
         articleRepository.save(article);
         return mapTOArticleDTO(article);
     }
 
-    public Page<ArticleDTO> findAll(Pageable pageable){
-        return articleRepository.findAll(pageable).map(this::mapTOArticleDTO);
+    @Transactional(readOnly = true)
+    public Page<ArticleDTO> findByCurrentDate(Pageable pageable){
+        LocalDate now = LocalDate.now();
+        int year = now.getYear();
+        int month = now.getMonthValue();
+
+        LocalDateTime stDate;
+        LocalDateTime endDate;
+
+        if(month >= 3 && month <= 8){
+            stDate = LocalDateTime.of(year, 3, 1, 0, 0, 0);
+            endDate = LocalDateTime.of(year, 8, 31, 23, 59, 59);
+        } else{
+            int startYear = (month <= 2) ? year - 1 : year; //2월 이내면 시작 날짜는 작년 9월
+            int endYear = startYear + 1;
+
+            stDate = LocalDateTime.of(startYear, 9, 1, 0, 0, 0);
+
+            LocalDate feb = LocalDate.of(endYear, 2, 1).with(TemporalAdjusters.lastDayOfMonth());
+            endDate = LocalDateTime.of(feb, LocalTime.MAX);
+        }
+
+        return articleRepository.findByDate(stDate, endDate, pageable).map(this::mapTOArticleDTO);
     }
 
+    @Transactional(readOnly = true)
+    public Page<ArticleDTO> findByPastDate(Pageable pageable, int selectedYear, int selectedSemester){
+        LocalDateTime stDate;
+        LocalDateTime endDate;
+
+        //1학기가 선택된 경우 선택된 년도의 3.1~8.31까지의 데이터를 조회
+        if(selectedSemester == 1){
+            stDate = LocalDateTime.of(selectedYear, 3, 1, 0, 0, 0);
+            endDate = LocalDateTime.of(selectedYear, 8, 31, 23, 59, 59);
+        } else{
+            stDate = LocalDateTime.of(selectedYear, 9, 1, 0, 0, 0);
+
+            LocalDate feb = LocalDate.of(selectedYear + 1, 2, 1).with(TemporalAdjusters.lastDayOfMonth());
+            endDate = LocalDateTime.of(feb, LocalTime.MAX);
+        }
+
+        return articleRepository.findByDate(stDate, endDate, pageable).map(this::mapTOArticleDTO);
+    }
+
+    @Transactional(readOnly = true)
     public ArticleDTO findById(Long id){
         return articleRepository.findById(id).map(this::mapTOArticleDTO).orElseThrow();
     }

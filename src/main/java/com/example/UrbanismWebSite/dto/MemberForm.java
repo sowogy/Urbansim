@@ -19,10 +19,9 @@ public class MemberForm {
     @NotBlank(message = "이메일을 입력하세요")
     @Email(message = "이메일 형식이 잘못 되었습니다")
     private String email;
-    @NotBlank(message = "비밀번호 설정(특수문자를 포함한 8자 이상의 영문으로 입력하세요)")
+    @NotBlank(message = "비밀번호를 설정해주세요.")
     @Pattern(
-            regexp = "^(?=.*[!@#$%^&*])[a-zA-Z!@#$%^&*]{8,16}$",
-            message = "특수문자를 포함한 8자 이상의 영문으로 입력하세요."
+            regexp = "^(?=.*[~!@#$%^&*])[a-zA-Z0-9~!@#$%^&*]{8,256}$"
     )
     private String passwd;
     @NotBlank(message = "설정한 비밀번호를 입력하세요")
@@ -33,4 +32,6 @@ public class MemberForm {
             message = "입력 형식에 맞춰 입력해주세요 (예: 01012345678)"
     )
     private String phone;
+    @NotBlank(message = "인증 코드를 입력해주세요.")
+    private String authenticate_code;
 }

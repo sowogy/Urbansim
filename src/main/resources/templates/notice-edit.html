@@ -16,7 +16,7 @@
             <h2 class="text-xl font-medium text-gray-900">글 수정</h2>
         </div>
 
-        <form th:object="${notice}" th:action="@{/notice/edit}" method="post" class="p-6 space-y-6">
+        <form th:object="${notice}" th:action="@{/notice/edit}" method="post" class="p-6 space-y-6" enctype="multipart/form-data">
             <input type="hidden" name="id" th:value="*{id}"/>
 
             <!-- 제목 입력 -->

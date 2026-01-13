@@ -22,5 +22,6 @@ public class Member {
     private String email;
     private String passwd;
     private String phone;
+    private String identifier; //소셜 로그인의 경우 플랫폼 + 고유 ID
 }
 

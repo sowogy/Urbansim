@@ -3,14 +3,14 @@
       xmlns="http://www.w3.org/1999/xhtml"
       th:replace="~{default-board::layout(~{::section})}">
 <body>
-<section class="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+<section class="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full space-y-8">
         <div class="text-center">
-            <h1 class="text-3xl font-bold text-gray-900">사용자 계정 정보 변경</h1>
+            <h1 class="text-3xl font-bold text-gray-900">회원 정보 변경</h1>
         </div>
 
         <div class="bg-white py-8 px-6 shadow-lg rounded-lg">
-            <form th:object="${member}" th:action="@{/member/edit}" method="post" class="space-y-6">
+            <form th:object="${member}" th:action="@{/member/edit}" id="sendForm" method="post" class="space-y-6">
                 <input type="hidden" name="id" th:field="*{id}"/>
 
                 <div>
@@ -25,10 +25,21 @@
                 </div>
 
                 <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700 mb-2">전화번호</label>
+                    <input type="text"
+                           id="phone"
+                           th:field="*{phone}"
+                           class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition duration-200">
+                    <p th:if="${#fields.hasErrors('phone')}"
+                       th:errors="*{phone}"
+                       class="mt-1 text-sm text-red-600">Name Error</p>
+                </div>
+
+                <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                     <input type="text"
                            id="email"
-                           th:field="*{email}"
+                           placeholder="이메일 변경은 사이트 관리자에게 문의해주세요."
                            readonly
                            class="w-full px-3 py-2 bg-gray-50 border border-gray-300 rounded-md shadow-sm text-gray-500 cursor-not-allowed">
                     <p th:if="${#fields.hasErrors('email')}"
@@ -45,6 +56,33 @@
             </form>
         </div>
     </div>
+
+    <script>
+        document.getElementById('sendForm').addEventListener('submit', async function(e){
+            e.preventDefault();
+
+            const form = this;
+            const formData = new FormData(form);
+
+            try{
+                const response = await fetch(form.action, {
+                    method : 'POST',
+                    body : formData
+                });
+
+                const getData = await response.json();
+
+                if(response.ok){
+                    alert(getData.message || '회원정보가 성공적으로 수정되었습니다.');
+                    window.location.href = '/member/list';
+                } else{
+                    alert(getData.message || '회원정보 수정 중 에러가 발생했씁니다.');
+                }
+            } catch(error){
+                alert(error.message || '서버와의 연결이 끊겼습니다.');
+            }
+        })
+    </script>
 </section>
 </body>
 </html>

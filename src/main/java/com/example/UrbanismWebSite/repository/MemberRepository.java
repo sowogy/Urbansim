@@ -16,4 +16,7 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     @Query("SELECT m FROM Member m WHERE m.email = :userEmail AND m.phone = :userPhone")
     Optional<Member> findPasswd(String userEmail, String userPhone);
+
+    @Query("SELECT COUNT(m) > 0 FROM Member m WHERE m.id = :id AND m.identifier IS NOT NULL")
+    boolean existsByIdAndIdentifierIsNotNull(long id);
 }

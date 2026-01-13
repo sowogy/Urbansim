@@ -10,4 +10,10 @@ public class MemberDTO {
     private String name;
     private String email;
     private String phone;
+    public String getFormattedPhone(){
+        if(phone == null && phone.length() != 11){
+            return phone;
+        }
+        return phone.replaceAll("(\\d{3})(\\d{4})(\\d{4})", "$1-$2-$3");
+    }
 }

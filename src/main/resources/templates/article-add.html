@@ -4,15 +4,15 @@
       th:replace="~{default-board::layout(~{::section})}">
 <head>
     <meta charset="UTF-8" />
-    <title>게시판 - 글쓰기</title>
+    <title>Urbanism 프로젝트 작성</title>
     <link rel="stylesheet" th:href="@{/css/upload.css}" />
 </head>
 <body>
 <section class="max-w-4xl mx-auto px-4 py-8">
     <!-- 페이지 헤더 -->
     <div class="mb-8">
-        <h1 class="text-3xl font-medium text-gray-900 mb-2">게시글 작성</h1>
-        <p class="text-gray-600">새로운 게시글을 작성해보세요.</p>
+        <h1 class="text-3xl font-medium text-gray-900 mb-2">프로젝트 작성</h1>
+        <p class="text-gray-600">새로운 프로젝트를 작성해보세요.</p>
     </div>
 
     <!-- 게시글 작성 폼 -->
@@ -23,7 +23,13 @@
         </div>
 
         <!-- 파일 업로드를 위해 enctype 추가 -->
-        <form th:object="${article}" th:action="@{/article/add}" method="post" enctype="multipart/form-data" class="p-6 space-y-6">
+        <form id="sendForm" th:object="${article}" th:action="@{/article/add}" method="post" enctype="multipart/form-data" class="p-6 space-y-6">
+            <input type="hidden" id="isCurrent" th:field="*{isCurrent}">
+            <div th:if="${!article.isCurrent}">
+                <input type="hidden" id="selectedYear" th:value="${selectedYear}">
+                <input type="hidden" id="selectedSemester" th:value="${selectedSemester}">
+            </div>
+
             <!-- 제목 입력 -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">제목</label>
@@ -149,138 +155,180 @@
                 <p id="fileError" class="text-red-600 text-sm mt-2" style="display:none;"></p>
             </div>
 
-            <script>
-                (function () {
-                    // 공용 유틸
-                    function fmtMB(bytes) {
-                        return (bytes / 1024 / 1024).toFixed(1) + ' MB';
-                    }
-                    function isPdf(file) {
-                        if (!file) return false;
-                        if (file.type && file.type.toLowerCase().includes('pdf')) return true;
-                        return /\.pdf$/i.test(file.name || '');
-                    }
-
-                    // 미리보기 관련
-                    function ensurePreviewContainer() {
-                        var container = document.getElementById('clientPdfPreview');
-                        if (!container) {
-                            container = document.createElement('div');
-                            container.id = 'clientPdfPreview';
-                            container.className = 'mt-4 border border-gray-200 rounded-lg overflow-hidden';
-                            var fileBlock = document.querySelector('form > div:last-of-type') || document.querySelector('form');
-                            (fileBlock || document.body).appendChild(container);
-                        }
-                        return container;
-                    }
-
-                    let currentObjectUrl = null;
-                    function clearClientPreview() {
-                        const container = document.getElementById('clientPdfPreview');
-                        if (container) container.innerHTML = '';
-                        if (currentObjectUrl) {
-                            URL.revokeObjectURL(currentObjectUrl);
-                            currentObjectUrl = null;
-                        }
-                    }
-                    function showPdfPreview(file) {
-                        clearClientPreview();
-                        if (!isPdf(file)) return;
-                        const url = URL.createObjectURL(file);
-                        currentObjectUrl = url;
-                        const container = ensurePreviewContainer();
-                        const embed = document.createElement('embed');
-                        embed.setAttribute('src', url);
-                        embed.setAttribute('type', 'application/pdf');
-                        embed.setAttribute('width', '100%');
-                        embed.setAttribute('height', '420');
-                        container.appendChild(embed);
-                    }
-
-                    // UI 전환 함수들
-                    function showUploadArea() {
-                        document.getElementById('uploadArea').style.display = '';
-                        document.getElementById('fileManageArea').style.display = 'none';
-                    }
-
-                    function showFileManageArea() {
-                        document.getElementById('uploadArea').style.display = 'none';
-                        document.getElementById('fileManageArea').style.display = '';
-                    }
-
-                    // 요소 참조
-                    const fileInput = document.getElementById('fileInput');
-                    const fileName = document.getElementById('fileName');
-                    const fileStatus = document.getElementById('fileStatus');
-                    const fileSize = document.getElementById('fileSize');
-                    const replaceBtn = document.getElementById('replaceBtn');
-                    const removeBtn = document.getElementById('removeBtn');
-
-                    // 파일 선택 핸들러
-                    function handleFileSelected(file) {
-                        if (file) {
-                            // 파일 정보 업데이트
-                            fileName.textContent = file.name;
-                            fileSize.textContent = fmtMB(file.size);
-                            fileStatus.textContent = '업로드 예정';
-                            fileStatus.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800';
-
-                            // UI 전환
-                            showFileManageArea();
-
-                            // PDF 미리보기
-                            showPdfPreview(file);
-                        }
-                    }
-
-                    // 파일 제거 핸들러
-                    function handleFileRemoved() {
-                        // 파일 입력 초기화
-                        fileInput.value = '';
-
-                        // UI 전환
-                        showUploadArea();
-
-                        // 미리보기 제거
-                        clearClientPreview();
-                    }
-
-                    // 이벤트 리스너
-                    if (fileInput) {
-                        fileInput.addEventListener('change', function () {
-                            const files = this.files;
-                            if (files && files.length > 0) {
-                                handleFileSelected(files[0]);
-                            } else {
-                                handleFileRemoved();
-                            }
-                        });
-                    }
-
-                    // 교체 버튼
-                    if (replaceBtn) {
-                        replaceBtn.addEventListener('click', function () {
-                            fileInput.click();
-                        });
-                    }
-
-                    // 삭제 버튼
-                    if (removeBtn) {
-                        removeBtn.addEventListener('click', function () {
-                            handleFileRemoved();
-                        });
-                    }
-
-                    // 페이지 떠날 때 objectURL 해제
-                    window.addEventListener('beforeunload', clearClientPreview);
-                })();
-            </script>
-
             <button type="submit" class="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm">
                 저장
             </button>
         </form>
     </div>
+
+    <script>
+        (function () {
+            // 공용 유틸
+            function fmtMB(bytes) {
+                return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+            }
+            function isPdf(file) {
+                if (!file) return false;
+                if (file.type && file.type.toLowerCase().includes('pdf')) return true;
+                return /\.pdf$/i.test(file.name || '');
+            }
+
+            // 미리보기 관련
+            function ensurePreviewContainer() {
+                var container = document.getElementById('clientPdfPreview');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'clientPdfPreview';
+                    container.className = 'mt-4 border border-gray-200 rounded-lg overflow-hidden';
+                    var fileBlock = document.querySelector('form > div:last-of-type') || document.querySelector('form');
+                    (fileBlock || document.body).appendChild(container);
+                }
+                return container;
+            }
+
+            let currentObjectUrl = null;
+            function clearClientPreview() {
+                const container = document.getElementById('clientPdfPreview');
+                if (container) container.innerHTML = '';
+                if (currentObjectUrl) {
+                    URL.revokeObjectURL(currentObjectUrl);
+                    currentObjectUrl = null;
+                }
+            }
+            function showPdfPreview(file) {
+                clearClientPreview();
+                if (!isPdf(file)) return;
+                const url = URL.createObjectURL(file);
+                currentObjectUrl = url;
+                const container = ensurePreviewContainer();
+                const embed = document.createElement('embed');
+                embed.setAttribute('src', url);
+                embed.setAttribute('type', 'application/pdf');
+                embed.setAttribute('width', '100%');
+                embed.setAttribute('height', '420');
+                container.appendChild(embed);
+            }
+
+            // UI 전환 함수들
+            function showUploadArea() {
+                document.getElementById('uploadArea').style.display = '';
+                document.getElementById('fileManageArea').style.display = 'none';
+            }
+
+            function showFileManageArea() {
+                document.getElementById('uploadArea').style.display = 'none';
+                document.getElementById('fileManageArea').style.display = '';
+            }
+
+            // 요소 참조
+            const fileInput = document.getElementById('fileInput');
+            const fileName = document.getElementById('fileName');
+            const fileStatus = document.getElementById('fileStatus');
+            const fileSize = document.getElementById('fileSize');
+            const replaceBtn = document.getElementById('replaceBtn');
+            const removeBtn = document.getElementById('removeBtn');
+
+            // 파일 선택 핸들러
+            function handleFileSelected(file) {
+                if (file) {
+                    // 파일 정보 업데이트
+                    fileName.textContent = file.name;
+                    fileSize.textContent = fmtMB(file.size);
+                    fileStatus.textContent = '업로드 예정';
+                    fileStatus.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800';
+
+                    // UI 전환
+                    showFileManageArea();
+
+                    // PDF 미리보기
+                    showPdfPreview(file);
+                }
+            }
+
+            // 파일 제거 핸들러
+            function handleFileRemoved() {
+                // 파일 입력 초기화
+                fileInput.value = '';
+
+                // UI 전환
+                showUploadArea();
+
+                // 미리보기 제거
+                clearClientPreview();
+            }
+
+            // 이벤트 리스너
+            if (fileInput) {
+                fileInput.addEventListener('change', function () {
+                    const files = this.files;
+                    if (files && files.length > 0) {
+                        handleFileSelected(files[0]);
+                    } else {
+                        handleFileRemoved();
+                    }
+                });
+            }
+
+            // 교체 버튼
+            if (replaceBtn) {
+                replaceBtn.addEventListener('click', function () {
+                    fileInput.click();
+                });
+            }
+
+            // 삭제 버튼
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function () {
+                    handleFileRemoved();
+                });
+            }
+
+            // 페이지 떠날 때 objectURL 해제
+            window.addEventListener('beforeunload', clearClientPreview);
+        })();
+
+        document.getElementById('sendForm').addEventListener('submit', async function(e){
+            showLoading();
+            e.preventDefault();
+
+            const form = this;
+            const formData = new FormData(form);
+
+            try{
+                const response = await fetch(form.action, {
+                    method : 'POST',
+                    body : formData
+                });
+
+                if(response.ok){
+                    const isCurrent = document.getElementById('isCurrent').value;
+                    //현재 프로젝트 목록으로 돌아갈 때
+                    if(isCurrent === 'true'){
+                        hideLoading();
+                        alert('프로젝트가 추가되었습니다.');
+                        window.location.href = "/article/list/cur"
+                    }
+                    //과거 프로젝트 목록으로 돌아갈 때
+                    else{
+                        const year = document.getElementById('selectedYear').value;
+                        const semester = document.getElementById('selectedSemester').value;
+                        hideLoading();
+                        alert('프로젝트가 추가되었습니다.');
+                        window.location.href="/article/list/past?selectedYear="+year+"&selectedSemester="+semester;
+                    }
+                }
+                else if(!response.ok){
+                    const errorData = await response.json();
+                    hideLoading();
+                    alert(errorData.message || '사용자 요청 처리 중 에러가 발생했습니다.');
+                }
+            } catch(error){
+                console.log(error);
+                hideLoading();
+                alert('서버와 연결할 수 없습니다. 인터넷 연결을 확인해보세요.');
+            }
+        });
+    </script>
 </section>
 <script th:src="@{/js/upload.js}"></script>
 </body>

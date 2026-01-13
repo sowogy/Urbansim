@@ -41,7 +41,6 @@ public class GlobalExceptionHandler {
 
     /**
      * 2) @Validated + BindingResult 없이 바인딩 실패(BindException)
-     *    - 주로 @ModelAttribute 바인딩 오류 등
      */
     @ExceptionHandler(BindException.class)
     public ResponseEntity<ErrorResponse> handleBindException(
@@ -110,25 +109,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(status).body(body);
     }
 
-    /**
-     * 5) 그 외 모든 예외 (마지막 안전망)
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleException(
-            Exception ex,
-            HttpServletRequest request
-    ) {
-        log.error("알 수 없는 서버 에러", ex);
-
-        ErrorResponse body = ErrorResponse.builder()
-                .timestamp(LocalDateTime.now())
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-                .error(HttpStatus.INTERNAL_SERVER_ERROR.name())
-                .message("서버에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요.")
-                .path(request.getRequestURI())
-                .build();
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
-    }
-
+//    /**
+//     * 5) 그 외 모든 예외 (마지막 안전망)
+//     */
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<ErrorResponse> handleException(
+//            Exception ex,
+//            HttpServletRequest request
+//    ) {
+//        log.error("알 수 없는 서버 에러" + ex);
+//
+//        ErrorResponse body = ErrorResponse.builder()
+//                .timestamp(LocalDateTime.now())
+//                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+//                .error(HttpStatus.INTERNAL_SERVER_ERROR.name())
+//                .message("서버에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요.")
+//                .path(request.getRequestURI())
+//                .build();
+//
+//        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
+//    }
 }

@@ -41,13 +41,6 @@
                 </div>
             </div>
 
-            <div class="px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="font-medium text-gray-500">수정일</div>
-                <div class="md:col-span-3 text-gray-900" th:text="${#calendars.format(notice.updated, 'yyyy-MM-dd HH:mm:ss')}">
-                    2025-08-13 22:38:10
-                </div>
-            </div>
-
             <!-- 첨부파일 영역 -->
             <div th:if="${notice.fileUrl}" class="px-6 py-4 grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="font-medium text-gray-500">첨부파일</div>

@@ -25,4 +25,7 @@ public class ArticleForm {
 
     //파일 삭제 여부 저장
     private Boolean removeFile;
+
+    //현재 or 과거 프로젝트 여부
+    private Boolean isCurrent;
 }

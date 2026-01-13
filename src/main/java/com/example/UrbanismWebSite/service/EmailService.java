@@ -1,9 +1,13 @@
 package com.example.UrbanismWebSite.service;
 
+import com.example.UrbanismWebSite.exception.BusinessException;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -15,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +28,7 @@ import java.time.format.DateTimeFormatter;
 public class EmailService {
     private final JavaMailSender javaMailSender;
     private final SpringTemplateEngine templateEngine;
+    private final HttpServletRequest request;
 
     @Value("${custom.admin.mail}")
     private String adminMail; //접수된 버그를 전송할 이메일 주소
@@ -37,7 +43,7 @@ public class EmailService {
         try {
             MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
             mimeMessageHelper.setTo(email); // 메일 수신자
-            mimeMessageHelper.setSubject("임시 비밀번호 발급 안내"); // 메일 제목
+            mimeMessageHelper.setSubject("Urbanism 임시 비밀번호 발급 안내"); // 메일 제목
             mimeMessageHelper.setText(setTempPasswordContext(todayDate(), tempPasswd), true); // 메일 본문 내용, HTML 여부
             javaMailSender.send(mimeMessage);
         } catch (Exception e) {
@@ -55,19 +61,41 @@ public class EmailService {
             if(serviceNum == 1){ //버그 신고 서비스
                 mimeMessageHelper.setTo(adminMail);
                 mimeMessageHelper.setSubject("Urbanism 사이트 버그 신고 안내");
-                mimeMessageHelper.setText(setBugNoticeContext(todayDate(), description));
+                mimeMessageHelper.setText(setBugNoticeContext(todayDate(), description), true);
             }
             else{   //문의사항 접수 서비스
                 mimeMessageHelper.setTo(contactMail);
                 mimeMessageHelper.setSubject("Urbanism 문의사항 접수 안내");
-                mimeMessageHelper.setText(setBugNoticeContext(todayDate(), description));
+                mimeMessageHelper.setText(setQuestionContext(todayDate(), description), true);
             }
             javaMailSender.send(mimeMessage);
         } catch(Exception e){
-            log.info("Failed to send Bug Notice");
+            log.info("Failed to send Mail");
             throw new RuntimeException(e);
         }
     }
+
+     @Async
+     public void sendEmailAuthenticationCode(String email, String code){
+        MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+        try{
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, false, "UTF-8");
+            mimeMessageHelper.setTo(email);
+            mimeMessageHelper.setSubject("이메일 인증 코드 발송");
+            mimeMessageHelper.setText(setEmailAuthenticationContext(todayDate(), code), true);
+            javaMailSender.send(mimeMessage); //메일 전송
+        } catch(Exception e){
+            log.info("Failed to send Email Authentication Mail -> " + e);
+        }
+     }
+
+     public boolean emailAuthenticationCodeCheck(String savedCode, String code){
+        if(savedCode.equals(code)){
+            return true;
+        } else{
+            return false;
+        }
+     }
 
     //오늘 날짜를 년-월-일 포맷으로 생성
     public String todayDate(){
@@ -90,5 +118,21 @@ public class EmailService {
         context.setVariable("date", date);
         context.setVariable("description", description);
         return templateEngine.process("bug-notice-send", context);
+    }
+
+    //문의사항 전송을 위한 html 페이지 적용
+    public String setQuestionContext(String date, String description) {
+        Context context = new Context();
+        context.setVariable("date", date);
+        context.setVariable("description", description);
+        return templateEngine.process("question-add", context);
+    }
+
+    //이메일 인증 번호 전송을 위한 html 페이지 적용
+    public String setEmailAuthenticationContext(String date, String authenticationCode){
+        Context context = new Context();
+        context.setVariable("date", date);
+        context.setVariable("authenticationCode", authenticationCode);
+        return templateEngine.process("email-authentication-code-send", context);
     }
 }
