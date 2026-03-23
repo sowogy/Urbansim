@@ -1,0 +1,210 @@
+<!-- 기존 일반 계정을 카카오 로그인과 연동시키는 페이지 -->
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>계정 연동</title>
+</head>
+<body>
+<section class="min-h-screen bg-white flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl">
+        <!-- 아이콘과 헤더 -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 shadow-xl mb-6">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+            </div>
+            <h1 class="text-3xl text-gray-900 mb-3 font-bold">계정 연동</h1>
+            <p class="text-gray-600 text-lg">기존 계정과 소셜 계정을 연동하시겠습니까?</p>
+        </div>
+
+        <!-- 메인 카드 -->
+        <div class="bg-white rounded-2xl border-2 border-gray-200 shadow-xl overflow-hidden mb-6">
+            <!-- 안내 메시지 -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-blue-200 p-6">
+                <div class="flex gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <div class="text-sm text-gray-700">
+                        <p class="font-semibold text-blue-900 mb-2">같은 이메일 주소로 가입된 계정이 있습니다</p>
+                        <p class="text-gray-600">계정을 연동하시면 소셜 로그인으로도 간편하게 로그인할 수 있습니다.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-8 space-y-6">
+                <!-- 기존 계정 정보 -->
+                <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0 w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-gray-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-gray-900 mb-3 font-bold">기존 계정</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500">이메일</span>
+                                    <span class="text-gray-900 font-medium" th:text="${existingEmail}">user@example.com</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500">가입일</span>
+                                    <span class="text-gray-900 font-medium" th:text="${registeredDate}">2024년 1월 15일</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-500">가입 방법</span>
+                                    <span class="text-gray-900 font-medium" th:text="${existingProvider}">이메일</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 연결 아이콘 -->
+                <div class="flex justify-center">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-md">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                        </svg>
+                    </div>
+                </div>
+
+                <!-- 소셜 계정 정보 -->
+                <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-6 border-2 border-blue-200">
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0 w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm border border-blue-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-gray-900 mb-3 font-bold">연동할 소셜 계정</h3>
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">소셜 계정</span>
+                                    <span class="text-blue-900 font-semibold" th:text="${socialProvider}">Google</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">이메일</span>
+                                    <span class="text-blue-900 font-medium" th:text="${socialEmail}">user@example.com</span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-600">이름</span>
+                                    <span class="text-blue-900 font-medium" th:text="${socialName}">홍길동</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 연동 안내 -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                    <div class="flex gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="text-sm text-gray-700">
+                            <p class="font-semibold text-yellow-900 mb-1">연동 시 이점</p>
+                            <ul class="space-y-1 text-gray-600">
+                                <li>• 여러 방법으로 간편하게 로그인 가능</li>
+                                <li>• 비밀번호를 잊어버려도 소셜 로그인으로 접속 가능</li>
+                                <li>• 계정 보안 강화</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 버튼 영역 -->
+        <form th:action="@{/account/link}" method="post">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <button
+                        type="submit"
+                        id="linkButton"
+                        class="flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-4 px-6 rounded-xl shadow-lg transition-all duration-200 hover:from-blue-600 hover:to-indigo-700 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                    <span id="linkButtonText">계정 연동하기</span>
+                </button>
+
+                <button
+                        type="button"
+                        id="cancelButton"
+                        onclick="handleCancel()"
+                        class="flex items-center justify-center gap-3 bg-white border-2 border-gray-300 text-gray-700 py-4 px-6 rounded-xl shadow-lg transition-all duration-200 hover:border-red-500 hover:bg-red-50 hover:text-red-700 hover:shadow-2xl disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                    <span>취소</span>
+                </button>
+            </div>
+        </form>
+
+        <!-- 도움말 -->
+        <div class="mt-8 text-center">
+            <p class="text-gray-500 text-sm">
+                연동에 문제가 있으신가요?
+                <a href="/mail/question" class="text-blue-600 hover:text-blue-700 underline ml-2">문의하기</a>
+            </p>
+        </div>
+    </div>
+</section>
+
+<script>
+    // 취소 버튼 클릭 핸들러
+    function handleCancel() {
+        if (confirm('계정 연동을 취소하시겠습니까?')) {
+            window.location.href = '/';
+        }
+    }
+
+    // 폼 제출 핸들러
+    document.querySelector('form').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const linkButton = document.getElementById('linkButton');
+        const linkButtonText = document.getElementById('linkButtonText');
+        const cancelButton = document.getElementById('cancelButton');
+
+        // 로딩 상태로 변경
+        linkButton.disabled = true;
+        cancelButton.disabled = true;
+        linkButtonText.textContent = '연동 중...';
+
+        // 실제 서버 요청
+        const form = this;
+        const formData = new FormData(form);
+
+        fetch(form.action, {
+            method: 'POST',
+            body: formData
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('계정이 성공적으로 연동되었습니다.');
+                    window.location.href = '/';
+                } else {
+                    return response.json().then(error => {
+                        throw new Error(error.message || '계정 연동 중 오류가 발생했습니다.');
+                    });
+                }
+            })
+            .catch(error => {
+                alert(error.message || '서버와의 연결이 끊겼습니다.');
+                // 버튼 원래대로
+                linkButton.disabled = false;
+                cancelButton.disabled = false;
+                linkButtonText.textContent = '계정 연동하기';
+            });
+    });
+</script>
+</body>
+</html>

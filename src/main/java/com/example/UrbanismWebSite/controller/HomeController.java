@@ -244,5 +244,10 @@ public class HomeController {
         codeService.init();
         return ResponseEntity.ok(Map.of("message", "인증 코드가 변경되었습니다."));
     }
+
+    @GetMapping("/connectToSocial")
+    public String getConnectTOSocialPage(Member member){
+        return "connect-to-social";
+    }
 }
 

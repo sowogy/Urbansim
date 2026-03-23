@@ -5,6 +5,8 @@ import com.example.UrbanismWebSite.model.Authority;
 import com.example.UrbanismWebSite.model.Member;
 import com.example.UrbanismWebSite.repository.AuthorityRepository;
 import com.example.UrbanismWebSite.repository.MemberRepository;
+import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -35,7 +37,7 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
     private final AuthorityRepository authorityRepository;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2AuthenticationToken oauthToken = (OAuth2AuthenticationToken) authentication;
         OAuth2User oAuth2User = oauthToken.getPrincipal();
 
@@ -47,15 +49,22 @@ public class CustomOAuth2SuccessHandler implements AuthenticationSuccessHandler 
         // 이메일 추출
         String email = (String) kakaoAccount.get("email");
 
-        /** 권한이 ROLE_GUEST일 경우 추가 정보 입력이 필요하므로 해당 페이지로 리다이렉트 */
         Member member = memberRepository.findByEmail(email).orElse(null);
         if(member != null){
             List<Authority> authority = authorityRepository.findByMember(member);
             boolean isGuest = authority.stream()
                     .anyMatch(auth -> "ROLE_GUEST".equals(auth.getAuthority()));
+            /** 권한이 ROLE_GUEST일 경우 추가 정보 입력이 필요하므로 해당 페이지로 리다이렉트 */
             if(isGuest){
                 response.sendRedirect("/socialInfoAdd");
                 return;
+            }
+            /** 권한은 ROLE_USER이지만 Identifier 컬럼이 비어있는 경우
+             *  일반 회원가입 유저가 가입한 이메일과 같은 이메일을 사용하는 카카오 계정으로 로그인한 경우
+             * */
+            if(member.getIdentifier() == null){
+                RequestDispatcher dispatcher = request.getRequestDispatcher("connect-to-social");
+                dispatcher.forward(request, response);
             }
         }
 

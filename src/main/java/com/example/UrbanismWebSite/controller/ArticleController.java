@@ -8,6 +8,7 @@ import com.example.UrbanismWebSite.dto.ArticleDTO;
 import com.example.UrbanismWebSite.dto.ArticleForm;
 import com.example.UrbanismWebSite.dto.DateSelectionForm;
 import com.example.UrbanismWebSite.exception.BusinessException;
+import com.example.UrbanismWebSite.model.Article;
 import com.example.UrbanismWebSite.model.MemberUserDetails;
 import com.example.UrbanismWebSite.service.ArticleService;
 import com.example.UrbanismWebSite.service.S3FileStoreService;
@@ -19,6 +20,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.Banner;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,16 +43,6 @@ import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
-
-/**
-* TODO
- * 컨트롤러 계층에 구현한 모든 로직을 서비스 계층으로 옮기기
- * 컨트롤러 계층은 서비스를 호출만할 뿐 로직 구현은 X
- * 서비스 계층에서 로직 실행 후 예외 발생 시 예외를 던짐
- * 컨트롤러 계층에서는 서비스 계층에서 던진 예외를 받아 처리
-* */
-
-
 @Controller
 @RequestMapping("/article")
 @RequiredArgsConstructor
@@ -99,29 +91,16 @@ public class ArticleController {
         return "select-project-date";
     }
 
-    @PostMapping("/content")
-    public String getContent(@RequestParam("id") Long id, Model model,
-                             HttpServletRequest request,
-                             HttpServletResponse response) {
-        try {
-            model.addAttribute("article", articleService.findById(id));
-            return "article-content";
-        } catch (Exception e) {
-            response.setContentType("text/html; charset=UTF-8");
-
-            String prevUrl = "/article/project";
-            try {
-                PrintWriter out = response.getWriter();
-                out.println("<script>");
-                out.println("alert('이미 삭제된 게시글입니다.')");
-                out.println("location.href = '" + prevUrl + "';"); // 다시 목록으로 돌려보냄
-                out.println("</script>");
-                out.flush();
-            } catch (IOException ioe) {
-                ioe.printStackTrace();
-            }
+    @GetMapping("/content")
+    public String getContent(@RequestParam("id") Long id, Model model) {
+        ArticleDTO articleDTO = articleService.findById(id);
+        if(articleDTO == null){
+            throw new BusinessException(HttpStatus.NO_CONTENT, "해당 프로젝트를 찾을 수 없습니다.");
         }
-        return null;
+
+        model.addAttribute("article", articleDTO);
+
+        return "article-content";
     }
 
 

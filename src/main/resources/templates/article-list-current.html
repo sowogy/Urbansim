@@ -136,25 +136,26 @@
 
     <script>
         document.querySelectorAll('.project-card').forEach(article => {
-            article.addEventListener('click', function(e){
+            article.addEventListener('click', async function(e){
                 e.preventDefault();
                 const url = this.getAttribute('data-read');
+                try{
+                    const response = await fetch(url, {
+                        method : 'GET',
+                        headers : {
+                            'Accept' : 'application/json, text/html'
+                        }
+                    });
 
-                const form = document.createElement('form');
-                form.setAttribute('method', 'post');
-                form.setAttribute('action', url);
-
-                const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
-                if (csrfToken) {
-                    const hiddenField = document.createElement('input');
-                    hiddenField.setAttribute('type', 'hidden');
-                    hiddenField.setAttribute('name', '_csrf');
-                    hiddenField.setAttribute('value', csrfToken);
-                    form.appendChild(hiddenField);
+                    if(response.ok){
+                        window.location.href = url;
+                    } else{
+                        const errorData = await response.json();
+                        alert(errorData.message || '해당 게시글이 존재하지 않습니다.');
+                    }
+                } catch(error){
+                    alert(error.message || '서버와의 연결이 끊겼습니다.');
                 }
-
-                document.body.appendChild(form);
-                form.submit();
             });
         });
     </script>
