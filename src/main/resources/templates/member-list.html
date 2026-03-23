@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      th:replace="~{default-board::layout(~{::section})}">
+<body>
+<section class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-200">
+            <h1 class="text-2xl font-bold text-gray-900">회원 목록</h1>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">회원번호</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이름</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">이메일</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">전화번호</th>
+                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">관리</th>
+                </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                <tr th:each="member : ${page}" class="hover:bg-gray-50 transition duration-200">
+                    <td th:text="${member.id}" class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">id</td>
+                    <td th:text="${member.name}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">name</td>
+                    <td th:text="${member.email}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">email@email.com</td>
+                    <td th:text="${member.formattedPhone}" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">01011112222</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-center">
+                        <div class="flex justify-center space-x-2">
+                            <a type="button"
+                               th:href="@{/member/edit(id=${member.id})}"
+                               class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-200">
+                                수정
+                            </a>
+                            <a type="button"
+                               th:href="@{/member/delete(id=${member.id})}"
+                               class="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-200">
+                                삭제
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <nav th:if="${!page.isEmpty()}" class="bg-white px-6 py-4 border-t border-gray-200">
+            <div class="flex items-center justify-center">
+                <ul class="inline-flex items-center space-x-1" th:with="start=${T(java.lang.Math).floor(page.number / 5) * 5},
+                     last=(${start + 4 < page.totalPages ? start + 4 : page.totalPages - 1})">
+                    <li th:classappend="${page.first} ? 'opacity-50 cursor-not-allowed'">
+                        <a th:href="@{/article/list(page=${page.number} - 1)}"
+                           class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50 hover:text-gray-700 transition duration-200"
+                           th:classappend="${page.first} ? 'pointer-events-none'">
+                            &laquo;
+                        </a>
+                    </li>
+                    <li th:each="pageNumber:${#numbers.sequence(start, last)}"
+                        th:classappend="${pageNumber == page.number} ? 'z-10'">
+                        <a th:text="${pageNumber + 1}"
+                           th:href="@{/member/list(page=${pageNumber})}"
+                           class="inline-flex items-center px-4 py-2 text-sm font-medium border transition duration-200"
+                           th:classappend="${pageNumber == page.number} ? 'text-blue-600 bg-blue-50 border-blue-500' : 'text-gray-500 bg-white border-gray-300 hover:bg-gray-50 hover:text-gray-700'">
+                            1
+                        </a>
+                    </li>
+                    <li th:classappend="${page.last} ? 'opacity-50 cursor-not-allowed'">
+                        <a th:href="@{/article/list(page=${page.number + 1})}"
+                           class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50 hover:text-gray-700 transition duration-200"
+                           th:classappend="${page.last} ? 'pointer-events-none'">
+                            &raquo;
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</section>
+</body>
+</html>

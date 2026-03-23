@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      th:fragment="footer">
+<head>
+    <meta charset="UTF-8">
+    <title>Footer</title>
+</head>
+<body>
+<!-- Footer Fragment -->
+<footer class="bg-gray-50 border-t border-gray-200"
+        th:fragment="footer">
+    <div class="max-w-7xl mx-auto px-6 py-6">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <!-- 브랜드 섹션 -->
+            <div class="space-y-4">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xl font-medium text-gray-900">Urbanism</span>
+                </div>
+                <p class="text-gray-600 leading-relaxed">
+                    모든 사람이 자유롭게 소통할 수 있는 열린 공간을 만들어갑니다.
+                </p>
+                <div class="flex space-x-2">
+                    <!-- Instagram 버튼 -->
+                    <a href="https://www.instagram.com/urbanism_cau/"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="inline-flex items-center justify-center w-8 h-8 text-gray-500 hover:text-gray-900 hover:bg-gray-100 rounded-md transition-colors">
+                        <svg class="w-8 h-8" viewBox="0 0 24 24" fill="none">
+                            <defs>
+                                <linearGradient id="instagram-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                                    <stop offset="0%" style="stop-color:#FD5949;stop-opacity:1" />
+                                    <stop offset="50%" style="stop-color:#D6249F;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#285AEB;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke="url(#instagram-gradient)" stroke-width="2" fill="none"/>
+                            <circle cx="12" cy="12" r="4" stroke="url(#instagram-gradient)" stroke-width="2" fill="none"/>
+                            <circle cx="17.5" cy="6.5" r="0.5" fill="url(#instagram-gradient)"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 빠른 링크 -->
+            <div>
+                <h4 class="font-medium text-gray-900 mb-4">프로젝트 보기</h4>
+                <div class="space-y-2">
+                    <a th:href="@{/article/list/cur}" class="block text-gray-600 hover:text-gray-900 transition-colors">
+                        최신 글
+                    </a>
+                </div>
+            </div>
+
+            <!-- 커뮤니티 -->
+            <div>
+                <h4 class="font-medium text-gray-900 mb-4">공지 및 문의사항</h4>
+                <div class="space-y-2">
+                    <a th:href="@{/notice/list}" class="block text-gray-600 hover:text-gray-900 transition-colors">
+                        공지사항
+                    </a>
+                    <a th:href="@{/mail/question}" class="block text-gray-600 hover:text-gray-900 transition-colors">
+                        문의하기
+                    </a>
+                    <a th:href="@{/mail/bugNotice}" class="block text-gray-600 hover:text-gray-900 transition-colors">
+                        버그 신고
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 구분선 -->
+        <div class="border-t border-gray-200 my-4"></div>
+
+        <!-- 하단 정보 -->
+        <div class="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
+            <p class="text-gray-600 text-sm">
+                © 2025 Urbanism. All Rights Reserved.
+            </p>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서버 오류 - 500</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-white flex items-center justify-center p-4">
+<div class="w-full max-w-2xl">
+    <!-- 에러 아이콘 -->
+    <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-red-500 to-pink-600 rounded-full mb-6 shadow-2xl animate-bounce-slow">
+            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+        </div>
+
+        <div class="mb-4">
+            <h1 class="text-8xl md:text-9xl text-gray-200 mb-2">
+                <b>Urbanism</b>
+            </h1>
+        </div>
+
+        <!-- 에러 메시지 -->
+        <h2 class="text-3xl text-gray-900 mb-3">
+            <b>서버 오류가 발생했습니다</b>
+        </h2>
+        <p class="text-gray-600 text-lg mb-8">
+            일시적인 문제로 요청을 처리할 수 없습니다.<br>
+            잠시 후 다시 시도해주세요.
+        </p>
+    </div>
+
+    <!-- 에러 상세 정보 카드 -->
+    <div class="bg-white rounded-2xl border-2 border-gray-200 shadow-xl p-8 mb-8">
+        <div class="flex items-start gap-4 mb-6">
+            <div class="flex-shrink-0 w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center">
+                <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-gray-900 mb-2"><b>문제 해결 방법</b></h3>
+                <ul class="space-y-2 text-gray-600 text-sm">
+                    <li class="flex items-start gap-2">
+                        <span class="text-blue-500 mt-1">•</span>
+                        <span>페이지를 새로고침하여 다시 시도해보세요.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-blue-500 mt-1">•</span>
+                        <span>잠시 후 다시 접속해주세요.</span>
+                    </li>
+                    <li class="flex items-start gap-2">
+                        <span class="text-blue-500 mt-1">•</span>
+                        <span>문제가 지속되면 관리자에게 문의해주세요</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+
+        <!-- 에러 상세 정보 -->
+        <div class="mt-6 p-4 bg-gray-50 rounded-xl border border-gray-200">
+            <p class="text-xs text-gray-500 mb-1"><b>Error Code : </b><b th:text="|${status} ${error}|"> 500 Internal Server Error</b></p>
+            <p class="text-xs text-gray-500">
+                <b>발생 시간 : </b>
+                <span th:text="${#dates.format(timestamp, 'yyyy-MM-dd HH:mm:ss')}">2026-01-08 16:30:00</span>
+            </p>
+        </div>
+    </div>
+
+    <!-- 버튼 영역 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <button
+                onclick="location.reload()"
+                class="flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-4 px-6 rounded-xl shadow-lg transition-all duration-200 hover:from-blue-600 hover:to-indigo-700 hover:shadow-2xl"
+        >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            <span>페이지 새로고침</span>
+        </button>
+
+        <button
+                onclick="location.href='/'"
+                class="flex items-center justify-center gap-3 bg-white border-2 border-gray-300 text-gray-700 py-4 px-6 rounded-xl shadow-lg transition-all duration-200 hover:border-blue-500 hover:bg-blue-50 hover:text-blue-700 hover:shadow-2xl"
+        >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+            </svg>
+            <span>홈으로 이동</span>
+        </button>
+    </div>
+
+    <!-- 도움말 링크 -->
+    <div class="mt-8 text-center">
+        <p class="text-gray-500 text-sm">
+            도움이 필요하신가요?
+            <a href="/mail/bugNotice" class="text-blue-600 hover:text-blue-700 underline ml-2">
+                문제 신고하기
+            </a>
+        </p>
+    </div>
+</div>
+
+<style>
+    @keyframes bounce-slow {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-15px);
+        }
+    }
+
+    .animate-bounce-slow {
+        animation: bounce-slow 2s ease-in-out infinite;
+    }
+</style>
+
+<script>
+    // 현재 시간 표시
+    document.getElementById('timestamp').textContent = new Date().toLocaleString('ko-KR');
+</script>
+</body>
+</html>

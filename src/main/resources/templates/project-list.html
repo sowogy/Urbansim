@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko" th:replace="~{default-board::layout(~{::section})}"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<body>
+<section id="features" class="py-20 px-4">
+    <div class="container mx-auto max-w-7xl"
+         th:with="
+            now=${T(java.time.LocalDate).now()},
+            currentYear=${now.monthValue <= 2 ? now.year - 1 : now.year},
+            semester=${now.monthValue <= 8 && now.monthValue >= 3 ? '1학기' : '2학기'}
+         ">
+        <div class="text-center mb-8 space-y-4">
+            <h2 class="text-3xl lg:text-6xl">Urbanism Projects</h2>
+            <p class="text-xl text-gray-600 max-w-4xl mx-auto">
+                Urbanism의 최신 및 과거 활동들을 확인해보세요.
+            </p>
+        </div>
+
+        <div class="flex gap-8 max-w-4xl mx-auto">
+            <!-- Feature Card 1 -->
+            <a th:href="@{/article/list/cur}"
+               class="error-check card flex-1 h-full group block rounded-lg border bg-white text-gray-900 shadow-sm
+                transform transition-all duration-300
+                hover:-translate-y-1 hover:shadow-xl
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/40 focus-visible:ring-offset-2
+                no-underline">
+                <div class="p-6 h-full flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <div class="p-2 bg-gray-100 rounded-lg transition-colors duration-300
+                        group-hover:bg-gray-200
+                        transform transition-transform duration-300 group-hover:-translate-y-0.5">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                            </svg>
+                        </div>
+                        <!-- 배지: 현재년도-학기 포맷 -->
+                        <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs
+                         bg-gray-100 text-gray-700 transition-colors duration-300 group-hover:bg-gray-200"
+                              th:text="|${currentYear}-${semester}|">
+                            2025-2학기
+                        </span>
+                    </div>
+                    <!-- 제목: 예시로 '현재년도 학기 활동' 형식 -->
+                    <h3 class="text-xl"
+                        th:text="|${currentYear}년도 ${semester} 활동|">
+                        2025년도 2학기 활동
+                    </h3>
+                    <p class="text-base leading-relaxed text-gray-600">
+                        클릭하여 Urbanism의 최근 활동들을 확인해보세요.
+                    </p>
+                    <div class="mt-auto"></div>
+                </div>
+            </a>
+
+            <!-- Feature Card 2 -->
+            <a th:href="@{/article/list/select-past-date}"
+               class="error-check card flex-1 h-full group block rounded-lg border bg-white text-gray-900 shadow-sm
+                transform transition-all duration-300
+                hover:-translate-y-1 hover:shadow-xl
+                focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/40 focus-visible:ring-offset-2
+                no-underline">
+                <div class="p-6 h-full flex flex-col gap-4">
+                    <div class="flex items-center justify-between">
+                        <div class="p-2 bg-gray-100 rounded-lg transition-colors duration-300
+                        group-hover:bg-gray-200
+                        transform transition-transform duration-300 group-hover:-translate-y-0.5">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs
+                         bg-gray-100 text-gray-700 transition-colors duration-300 group-hover:bg-gray-200">
+                        이전 학기
+            </span>
+                    </div>
+                    <h3 class="text-xl">과거 활동들을 조회</h3>
+                    <p class="text-base leading-relaxed text-gray-600">
+                        클릭하여 Urbanism의 과거 활동들을 확인해보세요.
+                    </p>
+                    <div class="mt-auto"></div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- 순수 CSS fallback: Tailwind가 막혀도 반드시 떠오르고 그림자 강화됨 -->
+    <style>
+        .card {
+            transition: transform .3s ease, box-shadow .3s ease, background-color .3s ease;
+            will-change: transform, box-shadow;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .card { transition: none; }
+        }
+        .card:hover,
+        .card:focus-visible {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(0,0,0,.12), 0 5px 15px rgba(0,0,0,.10);
+            background-color: #f9fafb; /* hover:bg-gray-50 유사 톤 */
+        }
+    </style>
+
+    <!--에러 처리 스크립트-->
+    <script>
+        document.querySelectorAll('.error-check').forEach(link => {
+            link.addEventListener('click', async function(e){
+               e.preventDefault();
+
+               const url = this.href;
+
+               try{
+                   const response = await fetch(url, {
+                        method:'GET',
+                        headers: {
+                            'Accept': 'application/json, text/html'
+                        }
+                   });
+
+                   if(!response.ok){
+                       //에러 발생 시 에러메시지를 띄우고 페이지 이동을 막음
+                       const errorData = await response.json();
+                       alert(errorData.message || '사용자 요청 처리 중 에러가 발생했습니다.');
+                   } else{
+                       //성공 시 페이지 이동
+                       window.location.href = url;
+                   }
+               } catch(error){
+                   console.log(error);
+                   alert('서버와 연결할 수 없습니다. 인터넷 연결을 확인해보세요.');
+                }
+            });
+        });
+    </script>
+</section>
+</body>
+</html>

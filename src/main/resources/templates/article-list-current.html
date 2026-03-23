@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ko" th:replace="~{default-board::layout(~{::section})}"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<body>
+<section class="max-w-6xl mx-auto px-4 py-8">
+    <div th:with="
+            now=${T(java.time.LocalDate).now()},
+            currentYear=${now.monthValue <= 2 ? now.year - 1 : now.year},
+            semester=${now.monthValue <= 8 && now.monthValue >= 3 ? '1학기' : '2학기'}"
+    >
+    <!-- 게시판 헤더 -->
+    <div class="text-center mb-8 space-y-4">
+        <h2 class="text-3xl lg:text-6xl" th:text="|Urbanism ${currentYear}년 ${semester}|"></h2>
+        <p class="text-xl text-gray-600 max-w-4xl mx-auto">
+            Urbanism의 활동들을 클릭하여 확인해보세요.
+        </p>
+    </div>
+
+    <!-- 게시글 카드 리스트 (가로 3 / 세로 2, 호버 카드) -->
+    <div th:if="${!page.isEmpty()}" class="bg-white rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+        <div class="p-6">
+            <div class="grid grid-cols-3 grid-rows-2 gap-8 place-items-stretch">
+                <a th:each="article : ${page.content}"
+                   th:attr="data-read=@{/article/content(id=${article.id})}"
+                   id="read-content"
+                   class="project-card card h-full group block rounded-lg border bg-white text-gray-900 shadow-sm
+                          transform transition-all duration-300
+                          hover:-translate-y-1 hover:shadow-xl
+                          focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400/40 focus-visible:ring-offset-2
+                          no-underline">
+                    <div class="p-6 h-full flex flex-col gap-4">
+                        <div class="flex items-center justify-between">
+                            <div class="p-2 bg-gray-100 rounded-lg transition-colors duration-300
+                                        group-hover:bg-gray-200
+                                        transform transition-transform duration-300 group-hover:-translate-y-0.5">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                          d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                                </svg>
+                            </div>
+                            <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs
+                                         bg-gray-100 text-gray-700 transition-colors duration-300 group-hover:bg-gray-200"
+                                  th:text="|최근 수정일 : ${#calendars.format(article.updated, 'yyyy-MM-dd')}|">
+                                2025-02-01
+                            </span>
+                        </div>
+
+                        <h3 class="text-xl font-semibold line-clamp-1" th:text="${article.title}">프로젝트 제목</h3>
+
+                        <div class="mt-auto flex items-center justify-between text-sm text-gray-500">
+                            <span th:text="|작성자 : ${article.name}|">작성자</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 빈 상태 메시지 -->
+    <div th:if="${page.isEmpty()}" class="text-center py-16">
+        <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">프로젝트가 없습니다</h3>
+        <p class="text-gray-500 mb-6">첫 번째 프로젝트를 작성해보세요!</p>
+        <a th:href="@{/article/add(isCurrent=true)}"
+           sec:authorize="isAuthenticated()"
+           class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            작성
+        </a>
+    </div>
+
+    <!-- 페이지네이션 및 글쓰기 버튼 -->
+    <div th:if="${!page.isEmpty()}">
+        <!-- 상단: 프로젝트 개수와 글쓰기 버튼 -->
+        <div class="flex items-center justify-between mt-8">
+            <div class="flex items-center gap-2 text-sm text-gray-600">
+                <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                총 <span class="text-blue-600" th:text="${page.totalElements}">0</span>개의 프로젝트
+            </div>
+
+            <!-- 글쓰기 버튼 -->
+            <div sec:authorize="isAuthenticated()">
+                <a th:href="@{/article/add(isCurrent=true)}"
+                   class="inline-flex items-center px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 transition-colors shadow-sm">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                    작성
+                </a>
+            </div>
+        </div>
+
+        <!-- 중앙: 페이지네이션 -->
+        <nav class="flex items-center justify-center space-x-1 mt-6"
+             th:with="start=${T(java.lang.Math).floor(page.number / 5) * 5},
+                         last=(${start + 4 < page.totalPages ? start + 4 : page.totalPages - 1})">
+
+            <!-- 이전 페이지 버튼 -->
+            <a th:href="@{/article/list/cur(page=${page.number - 1})}"
+               class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+               th:classappend="${page.first} ? 'opacity-50 cursor-not-allowed pointer-events-none'"
+               aria-label="Previous">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                </svg>
+            </a>
+
+            <!-- 페이지 번호들 -->
+            <a th:each="pageNumber: ${#numbers.sequence(start, last)}"
+               th:text="${pageNumber + 1}"
+               th:href="@{/article/list/cur(page=${pageNumber})}"
+               class="px-3 py-2 text-sm font-medium border rounded-md transition-colors"
+               th:classappend="${pageNumber == page.number} ? 'bg-blue-600 text-white border-blue-600' : 'text-gray-700 bg-white border-gray-300 hover:bg-gray-50'">1</a>
+
+            <!-- 다음 페이지 버튼 -->
+            <a th:href="@{/article/list/cur(page=${page.number + 1})}"
+               class="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+               th:classappend="${page.last} ? 'opacity-50 cursor-not-allowed pointer-events-none'"
+               aria-label="Next">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+            </a>
+        </nav>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('.project-card').forEach(article => {
+            article.addEventListener('click', async function(e){
+                e.preventDefault();
+                const url = this.getAttribute('data-read');
+                try{
+                    const response = await fetch(url, {
+                        method : 'GET',
+                        headers : {
+                            'Accept' : 'application/json, text/html'
+                        }
+                    });
+
+                    if(response.ok){
+                        window.location.href = url;
+                    } else{
+                        const errorData = await response.json();
+                        alert(errorData.message || '해당 게시글이 존재하지 않습니다.');
+                    }
+                } catch(error){
+                    alert(error.message || '서버와의 연결이 끊겼습니다.');
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .card {
+            transition: transform .3s ease, box-shadow .3s ease, background-color .3s ease;
+            will-change: transform, box-shadow;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .card { transition: none; }
+        }
+        .card:hover,
+        .card:focus-visible {
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(0,0,0,.12), 0 5px 15px rgba(0,0,0,.10);
+            background-color: #f9fafb; /* hover:bg-gray-50 유사 톤 */
+        }
+    </style>
+</section>
+</body>
+</html>

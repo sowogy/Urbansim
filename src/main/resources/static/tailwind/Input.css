@@ -1,0 +1,166 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* =========================================
+   1. Shadcn UI & 프로젝트 테마 변수 설정
+   ========================================= */
+@layer base {
+    :root {
+        /* Shadcn UI 기본 변수 */
+        --background: 0 0% 100%;
+        --foreground: 222.2 84% 4.9%;
+        --card: 0 0% 100%;
+        --card-foreground: 222.2 84% 4.9%;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222.2 84% 4.9%;
+        --primary: 222.2 47.4% 11.2%;
+        --primary-foreground: 210 40% 98%;
+        --secondary: 210 40% 96.1%;
+        --secondary-foreground: 222.2 47.4% 11.2%;
+        --muted: 210 40% 96.1%;
+        --muted-foreground: 215.4 16.3% 46.9%;
+        --accent: 210 40% 96.1%;
+        --accent-foreground: 222.2 47.4% 11.2%;
+        --destructive: 0 84.2% 60.2%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 214.3 31.8% 91.4%;
+        --input: 214.3 31.8% 91.4%;
+        --ring: 222.2 84% 4.9%;
+        --radius: 0.5rem;
+
+        /* 차트 색상 */
+        --chart-1: 12 76% 61%;
+        --chart-2: 173 58% 39%;
+        --chart-3: 197 37% 24%;
+        --chart-4: 43 74% 66%;
+        --chart-5: 27 87% 67%;
+
+        /* 사이드바 색상 */
+        --sidebar-background: 0 0% 98%;
+        --sidebar-foreground: 240 5.3% 26.1%;
+        --sidebar-primary: 240 5.9% 10%;
+        --sidebar-primary-foreground: 0 0% 98%;
+        --sidebar-accent: 240 4.8% 95.9%;
+        --sidebar-accent-foreground: 240 5.9% 10%;
+        --sidebar-border: 220 13% 91%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+
+        /* Urbanism 프로젝트 전용 커스텀 색상 */
+        --color-indigo-50:  #eef2ff;
+        --color-indigo-100: #e0e7ff;
+        --color-indigo-500: #6366f1;
+        --color-indigo-600: #4f46e5;
+        --color-indigo-700: #4338ca;
+    }
+
+    .dark {
+        --background: 222.2 84% 4.9%;
+        --foreground: 210 40% 98%;
+        --card: 222.2 84% 4.9%;
+        --card-foreground: 210 40% 98%;
+        --popover: 222.2 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
+        --primary: 210 40% 98%;
+        --primary-foreground: 222.2 47.4% 11.2%;
+        --secondary: 217.2 32.6% 17.5%;
+        --secondary-foreground: 210 40% 98%;
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 215 20.2% 65.1%;
+        --accent: 217.2 32.6% 17.5%;
+        --accent-foreground: 210 40% 98%;
+        --destructive: 0 62.8% 30.6%;
+        --destructive-foreground: 210 40% 98%;
+        --border: 217.2 32.6% 17.5%;
+        --input: 217.2 32.6% 17.5%;
+        --ring: 212.7 26.8% 83.9%;
+
+        --chart-1: 220 70% 50%;
+        --chart-2: 160 60% 45%;
+        --chart-3: 30 80% 55%;
+        --chart-4: 280 65% 60%;
+        --chart-5: 340 75% 55%;
+
+        --sidebar-background: 240 5.9% 10%;
+        --sidebar-foreground: 240 4.8% 95.9%;
+        --sidebar-primary: 224.3 76.3% 48%;
+        --sidebar-primary-foreground: 0 0% 100%;
+        --sidebar-accent: 240 3.7% 15.9%;
+        --sidebar-accent-foreground: 240 4.8% 95.9%;
+        --sidebar-border: 240 3.7% 15.9%;
+        --sidebar-ring: 217.2 91.2% 59.8%;
+    }
+
+    /* 기본 스타일 리셋 (수정됨: @apply 대신 표준 CSS 사용) */
+    * {
+        border-color: hsl(var(--border));
+    }
+    body {
+        background-color: hsl(var(--background));
+        color: hsl(var(--foreground));
+    }
+}
+
+/* =========================================
+   2. 커스텀 유틸리티 (Urbanism 프로젝트 전용)
+   ========================================= */
+@layer utilities {
+    /* 고정 너비 유틸리티 */
+    .w-420 { width: 420px; }
+    .max-w-420 { max-width: 420px; }
+    .max-w-600 { max-width: 600px; }
+
+    /* 고정 높이 유틸리티 */
+    .h-44px { height: 44px; }
+    .h-48px { height: 48px; }
+
+    /* 커스텀 패딩/마진 */
+    .p-22px { padding: 22px; }
+    .px-24px { padding-left: 24px; padding-right: 24px; }
+    .mt-22px { margin-top: 22px; }
+    .mb-22px { margin-bottom: 22px; }
+
+    /* 마진 상쇄용 */
+    .-mx-4 {
+        margin-left: -1rem;
+        margin-right: -1rem;
+    }
+
+    /* 인디고 색상 유틸리티 */
+    .text-indigo-500 { color: var(--color-indigo-500); }
+    .text-indigo-700 { color: var(--color-indigo-700); }
+    .bg-indigo-50 { background-color: var(--color-indigo-50); }
+    .border-indigo-500 { border-color: var(--color-indigo-500); }
+
+    /* 그라디언트 설정 */
+    .from-blue-500 { --tw-gradient-from: #3b82f6; --tw-gradient-to: rgb(59 130 246 / 0); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+    .to-indigo-100 { --tw-gradient-to: var(--color-indigo-100); }
+    .to-indigo-600 { --tw-gradient-to: var(--color-indigo-600); }
+
+    .hover\:from-blue-600:hover { --tw-gradient-from: #2563eb; --tw-gradient-to: rgb(37 99 235 / 0); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+    .hover\:to-indigo-700:hover { --tw-gradient-to: #4338ca; }
+
+    .hover\:bg-blue-50\/50:hover {
+        background-color: rgba(239, 246, 255, 0.5);
+    }
+}
+
+/* =========================================
+   3. 기타 애니메이션
+   ========================================= */
+@layer utilities {
+    .animate-fade-in {
+        animation: fade-in 0.25s ease-out;
+    }
+
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+            transform: translateY(4px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+}

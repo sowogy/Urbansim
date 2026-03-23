@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      th:replace="~{default-board::layout(~{::section})}">
+<body>
+<section class="max-w-md mx-auto bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+    <div class="text-center mb-8">
+        <h1 class="text-2xl font-medium text-gray-900">이메일 찾기</h1>
+        <p class="text-gray-600 mt-2">등록된 정보로 이메일을 찾으세요</p>
+    </div>
+
+    <form th:object="${findIdForm}" th:action="@{/findid}" method="post" class="space-y-6">
+        <div>
+            <label class="block text-gray-700 font-medium mb-2">이름</label>
+            <input type="text"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                   th:field="*{name}"
+                   placeholder="등록된 이름을 입력하세요">
+            <p th:if="${#fields.hasErrors('name')}" th:errors="*{name}" class="text-red-600 text-sm mt-1">Name Error</p>
+        </div>
+
+        <div>
+            <label class="block text-gray-700 font-medium mb-2">전화번호</label>
+            <input type="text"
+                   class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                   th:field="*{phone}"
+                   placeholder="등록된 전화번호를 입력하세요">
+            <p th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-red-600 text-sm mt-1">Phone Error</p>
+        </div>
+
+        <div class="pt-4">
+            <button type="submit"
+                    class="w-full inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"/>
+                </svg>
+                이메일 찾기
+            </button>
+        </div>
+    </form>
+
+    <!-- 성공 메시지 -->
+    <div th:if="${foundEmail != null}" class="mt-8 text-center bg-green-50 border border-green-200 rounded-lg p-6">
+        <div class="flex justify-center mb-4">
+            <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </div>
+        <p class="text-green-800 font-medium mb-2">요청하신 계정의 이메일은 다음과 같습니다.</p>
+        <h3 class="my-4">
+            <div class="bg-white border border-green-300 rounded-lg p-4 my-4">
+                <strong class="text-lg text-gray-900" th:text="${foundEmail}">found.email@example.com</strong>
+            </div>
+        </h3>
+        <a th:href="@{/login}"
+           class="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"/>
+            </svg>
+            로그인 하러 가기
+        </a>
+    </div>
+</section>
+</body>
+</html>

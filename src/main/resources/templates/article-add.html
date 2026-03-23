@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns="http://www.w3.org/1999/xhtml"
+      th:replace="~{default-board::layout(~{::section})}">
+<head>
+    <meta charset="UTF-8" />
+    <title>Urbanism 프로젝트 작성</title>
+    <link rel="stylesheet" th:href="@{/css/upload.css}" />
+</head>
+<body>
+<section class="max-w-4xl mx-auto px-4 py-8">
+    <!-- 페이지 헤더 -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-medium text-gray-900 mb-2">프로젝트 작성</h1>
+        <p class="text-gray-600">새로운 프로젝트를 작성해보세요.</p>
+    </div>
+
+    <!-- 게시글 작성 폼 -->
+    <div class="bg-white rounded-lg border border-gray-200 shadow-sm">
+        <!-- 폼 헤더 -->
+        <div class="bg-gray-50 px-6 py-4 border-b border-gray-200">
+            <h2 class="text-xl font-medium text-gray-900">글쓰기</h2>
+        </div>
+
+        <!-- 파일 업로드를 위해 enctype 추가 -->
+        <form id="sendForm" th:object="${article}" th:action="@{/article/add}" method="post" enctype="multipart/form-data" class="p-6 space-y-6">
+            <input type="hidden" id="isCurrent" th:field="*{isCurrent}">
+            <div th:if="${!article.isCurrent}">
+                <input type="hidden" id="selectedYear" th:value="${selectedYear}">
+                <input type="hidden" id="selectedSemester" th:value="${selectedSemester}">
+            </div>
+
+            <!-- 제목 입력 -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">제목</label>
+                <input type="text"
+                       th:field="*{title}"
+                       placeholder="제목을 입력하세요"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors">
+                <p th:if="${#fields.hasErrors('title')}"
+                   th:errors="*{title}"
+                   class="mt-2 text-sm text-red-600">Title Error</p>
+            </div>
+
+            <!-- 내용 입력 -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">내용</label>
+                <textarea th:field="*{description}"
+                          rows="10"
+                          placeholder="최대 1300자까지 작성 가능"
+                          class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors resize-vertical"></textarea>
+                <p th:if="${#fields.hasErrors('description')}"
+                   th:errors="*{description}"
+                   class="mt-2 text-sm text-red-600">Description Error</p>
+            </div>
+
+            <!-- 파일 업로드 영역 -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">첨부파일</label>
+
+                <!-- 기본 업로드 UI (파일이 없을 때) -->
+                <div id="uploadArea" class="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-gray-400 transition-colors">
+                    <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+
+                        <!-- accept: 확장자 화이트리스트 -->
+                        <input id="fileInput"
+                               name="files"
+                               type="file"
+                               th:field="*{file}"
+                               accept=".ppt,.pptx,.pdf,.hwp,.hwpx,.doc,.docx,.zip"
+                               multiple
+                               class="hidden" />
+
+                        <label for="fileInput" class="cursor-pointer">
+                            <span class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                                파일 선택
+                            </span>
+                        </label>
+
+                        <p class="mt-2 text-sm text-gray-500">
+                            PPT, PDF, HWP, DOCX 파일을 업로드하세요
+                        </p>
+                        <p class="text-xs text-gray-400 mt-1">
+                            최대 20MB 파일 1개
+                        </p>
+                    </div>
+
+                    <!-- 파일 에러 메시지 -->
+                    <p th:if="${#fields.hasErrors('file')}"
+                       th:errors="*{file}"
+                       class="mt-3 text-sm text-red-600 text-center">FileErrors</p>
+                </div>
+
+                <!-- 파일 선택 후 UI (article-edit 스타일) -->
+                <div id="fileManageArea" class="border border-gray-200 rounded-lg overflow-hidden" style="display:none;">
+                    <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                        <div class="grid grid-cols-12 gap-4">
+                            <div class="col-span-5 font-medium text-gray-700">파일명</div>
+                            <div class="col-span-2 font-medium text-gray-700">업로드 상태</div>
+                            <div class="col-span-2 font-medium text-gray-700">용량</div>
+                            <div class="col-span-3 font-medium text-gray-700">액션</div>
+                        </div>
+                    </div>
+
+                    <div class="divide-y divide-gray-200">
+                        <div id="fileRow" class="px-4 py-4">
+                            <div class="grid grid-cols-12 gap-4 items-center">
+                                <!-- 파일명 -->
+                                <div class="col-span-5">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-lg">📄</span>
+                                        <span id="fileName" class="text-gray-900"></span>
+                                    </div>
+                                </div>
+
+                                <!-- 업로드 상태 -->
+                                <div class="col-span-2">
+                                    <span id="fileStatus" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800">업로드 예정</span>
+                                </div>
+
+                                <!-- 용량 -->
+                                <div class="col-span-2">
+                                    <span id="fileSize" class="text-sm text-gray-600"></span>
+                                </div>
+
+                                <!-- 액션 버튼들 -->
+                                <div class="col-span-3">
+                                    <div class="flex flex-wrap gap-2">
+                                        <button type="button"
+                                                id="replaceBtn"
+                                                class="inline-flex items-center px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700 transition-colors">
+                                            교체
+                                        </button>
+                                        <button type="button"
+                                                id="removeBtn"
+                                                class="inline-flex items-center px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition-colors">
+                                            삭제
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 클라이언트 미리보기/검증 메시지 -->
+                <div id="fileList" class="upload-list mt-4"></div>
+                <p id="fileError" class="text-red-600 text-sm mt-2" style="display:none;"></p>
+            </div>
+
+            <button type="submit" class="inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors shadow-sm">
+                저장
+            </button>
+        </form>
+    </div>
+
+    <script>
+        (function () {
+            // 공용 유틸
+            function fmtMB(bytes) {
+                return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+            }
+            function isPdf(file) {
+                if (!file) return false;
+                if (file.type && file.type.toLowerCase().includes('pdf')) return true;
+                return /\.pdf$/i.test(file.name || '');
+            }
+
+            // 미리보기 관련
+            function ensurePreviewContainer() {
+                var container = document.getElementById('clientPdfPreview');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'clientPdfPreview';
+                    container.className = 'mt-4 border border-gray-200 rounded-lg overflow-hidden';
+                    var fileBlock = document.querySelector('form > div:last-of-type') || document.querySelector('form');
+                    (fileBlock || document.body).appendChild(container);
+                }
+                return container;
+            }
+
+            let currentObjectUrl = null;
+            function clearClientPreview() {
+                const container = document.getElementById('clientPdfPreview');
+                if (container) container.innerHTML = '';
+                if (currentObjectUrl) {
+                    URL.revokeObjectURL(currentObjectUrl);
+                    currentObjectUrl = null;
+                }
+            }
+            function showPdfPreview(file) {
+                clearClientPreview();
+                if (!isPdf(file)) return;
+                const url = URL.createObjectURL(file);
+                currentObjectUrl = url;
+                const container = ensurePreviewContainer();
+                const embed = document.createElement('embed');
+                embed.setAttribute('src', url);
+                embed.setAttribute('type', 'application/pdf');
+                embed.setAttribute('width', '100%');
+                embed.setAttribute('height', '420');
+                container.appendChild(embed);
+            }
+
+            // UI 전환 함수들
+            function showUploadArea() {
+                document.getElementById('uploadArea').style.display = '';
+                document.getElementById('fileManageArea').style.display = 'none';
+            }
+
+            function showFileManageArea() {
+                document.getElementById('uploadArea').style.display = 'none';
+                document.getElementById('fileManageArea').style.display = '';
+            }
+
+            // 요소 참조
+            const fileInput = document.getElementById('fileInput');
+            const fileName = document.getElementById('fileName');
+            const fileStatus = document.getElementById('fileStatus');
+            const fileSize = document.getElementById('fileSize');
+            const replaceBtn = document.getElementById('replaceBtn');
+            const removeBtn = document.getElementById('removeBtn');
+
+            // 파일 선택 핸들러
+            function handleFileSelected(file) {
+                if (file) {
+                    // 파일 정보 업데이트
+                    fileName.textContent = file.name;
+                    fileSize.textContent = fmtMB(file.size);
+                    fileStatus.textContent = '업로드 예정';
+                    fileStatus.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs bg-blue-100 text-blue-800';
+
+                    // UI 전환
+                    showFileManageArea();
+
+                    // PDF 미리보기
+                    showPdfPreview(file);
+                }
+            }
+
+            // 파일 제거 핸들러
+            function handleFileRemoved() {
+                // 파일 입력 초기화
+                fileInput.value = '';
+
+                // UI 전환
+                showUploadArea();
+
+                // 미리보기 제거
+                clearClientPreview();
+            }
+
+            // 이벤트 리스너
+            if (fileInput) {
+                fileInput.addEventListener('change', function () {
+                    const files = this.files;
+                    if (files && files.length > 0) {
+                        handleFileSelected(files[0]);
+                    } else {
+                        handleFileRemoved();
+                    }
+                });
+            }
+
+            // 교체 버튼
+            if (replaceBtn) {
+                replaceBtn.addEventListener('click', function () {
+                    fileInput.click();
+                });
+            }
+
+            // 삭제 버튼
+            if (removeBtn) {
+                removeBtn.addEventListener('click', function () {
+                    handleFileRemoved();
+                });
+            }
+
+            // 페이지 떠날 때 objectURL 해제
+            window.addEventListener('beforeunload', clearClientPreview);
+        })();
+
+        document.getElementById('sendForm').addEventListener('submit', async function(e){
+            showLoading();
+            e.preventDefault();
+
+            const form = this;
+            const formData = new FormData(form);
+
+            try{
+                const response = await fetch(form.action, {
+                    method : 'POST',
+                    body : formData
+                });
+
+                if(response.ok){
+                    const isCurrent = document.getElementById('isCurrent').value;
+                    //현재 프로젝트 목록으로 돌아갈 때
+                    if(isCurrent === 'true'){
+                        hideLoading();
+                        alert('프로젝트가 추가되었습니다.');
+                        window.location.href = "/article/list/cur"
+                    }
+                    //과거 프로젝트 목록으로 돌아갈 때
+                    else{
+                        const year = document.getElementById('selectedYear').value;
+                        const semester = document.getElementById('selectedSemester').value;
+                        hideLoading();
+                        alert('프로젝트가 추가되었습니다.');
+                        window.location.href="/article/list/past?selectedYear="+year+"&selectedSemester="+semester;
+                    }
+                }
+                else if(!response.ok){
+                    const errorData = await response.json();
+                    hideLoading();
+                    alert(errorData.message || '사용자 요청 처리 중 에러가 발생했습니다.');
+                }
+            } catch(error){
+                console.log(error);
+                hideLoading();
+                alert('서버와 연결할 수 없습니다. 인터넷 연결을 확인해보세요.');
+            }
+        });
+    </script>
+</section>
+<script th:src="@{/js/upload.js}"></script>
+</body>
+</html>
